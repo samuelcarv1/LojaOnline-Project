@@ -1,4 +1,6 @@
 ﻿using LojaOnline.Application.Commands.CreateProduct;
+using LojaOnline.Application.Commands.DeleteProduct;
+using LojaOnline.Application.Commands.UpdateProduct;
 using LojaOnline.Application.Queries.GetProduct;
 using LojaOnline.Application.Queries.GetProductById;
 using LojaOnline.Application.ViewModels;
@@ -46,5 +48,25 @@ namespace LojaOnline.API
 
             return Ok(product);
         }
+
+        [HttpDelete]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var result = await _mediator.Send(new DeleteProductCommand(id));
+
+            return NoContent();
+        }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult<ProductViewModel>> Update(int id, [FromBody] UpdateProductCommand command)
+        {
+            if (id != command.Id)
+                return BadRequest(new { message = "Id da URL não corresponde ao do body" });
+
+            var updatedProduct = await _mediator.Send(command);
+
+            return Ok(updatedProduct);
+        }
+
     }
 }

@@ -3,6 +3,7 @@ using System.Data.SqlClient;
 using LojaOnline.Application.Queries.GetProduct;
 using LojaOnline.Domain.Repositories;
 using LojaOnline.Infrastructure.Persistence.Repositories;
+using Microsoft.AspNetCore.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,23 @@ builder.Services.AddScoped<IDbConnection>(sp => new SqlConnection(builder.Config
 
 // Build
 var app = builder.Build();
+
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.ContentType = "application/json";
+
+        var error = context.Features.Get<IExceptionHandlerFeature>()?.Error;
+
+        if (error is KeyNotFoundException)
+            context.Response.StatusCode = StatusCodes.Status404NotFound;
+        else
+            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+
+        await context.Response.WriteAsJsonAsync(new { message = error?.Message });
+    });
+});
 
 // Pipeline
 if (app.Environment.IsDevelopment())

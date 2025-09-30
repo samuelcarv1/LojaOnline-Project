@@ -28,6 +28,14 @@ namespace LojaOnline.Infrastructure.Persistence.Repositories
 
         }
 
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var sql = @"Delete From Products Where ID_Product = @id";
+            var rows = await _connection.ExecuteAsync(sql, new { id });
+
+            return rows > 0;
+        }
+
         public async Task<IEnumerable<Product>> GetAllAsync()
         {
             var sql = "Select ID_Product as Id, NM_Name As Name, Price From Products";
@@ -39,6 +47,15 @@ namespace LojaOnline.Infrastructure.Persistence.Repositories
             var sql = "Select ID_Product as Id, NM_Name As Name, Price From Products Where ID_Product = @id";
 
             return await _connection.QuerySingleAsync<Product>(sql, new { id });
+        }
+
+        public async Task<Product?> UpdateAsync(Product product)
+        {
+            var sql = @"Update Products Set NM_Name = @Name, Price = @Price Where ID_Product = @Id;
+                        Select ID_Product as Id, NM_Name as Name, Price From Products Where ID_Product = @Id";
+
+            return await _connection.QuerySingleOrDefaultAsync<Product>(sql, new { product.Id, product.Name, product.Price });
+
         }
     }
 }
