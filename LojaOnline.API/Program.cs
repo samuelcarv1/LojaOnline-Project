@@ -10,6 +10,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Configuration
 var configuration = builder.Configuration;
 
+
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+
 // Services
 builder.Services.AddHttpClient();
 builder.Services.AddMediatR(cfg => { cfg.RegisterServicesFromAssemblies(typeof(GetProductQuery).Assembly); });

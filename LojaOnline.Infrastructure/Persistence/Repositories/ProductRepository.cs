@@ -46,7 +46,7 @@ namespace LojaOnline.Infrastructure.Persistence.Repositories
         {
             var sql = "Select ID_Product as Id, NM_Name As Name, Price From Products Where ID_Product = @id";
 
-            return await _connection.QuerySingleAsync<Product>(sql, new { id });
+            return await _connection.QuerySingleOrDefaultAsync<Product>(sql, new { id });
         }
 
         public async Task<Product?> UpdateAsync(Product product)

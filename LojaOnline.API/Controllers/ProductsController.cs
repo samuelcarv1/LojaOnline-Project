@@ -8,23 +8,29 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LojaOnline.API
+namespace LojaOnline.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class ProductsController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly ILogger<ProductsController> _logger;
 
-        public ProductsController(IMediator mediator)
+        public ProductsController(IMediator mediator, ILogger<ProductsController> logger)
         {
             _mediator = mediator;
+            _logger = logger;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<ProductViewModel>>> Get()
         {
+            _logger.LogInformation("Buncando todos os produtos");
+
             var result = await _mediator.Send(new GetProductQuery());
+
+            _logger.LogInformation("Foram encontrados {count} produtos", result.Count);
 
             return Ok(result);
         }
@@ -40,11 +46,18 @@ namespace LojaOnline.API
         [HttpGet("{id}")]
         public async Task<ActionResult<ProductViewModel>> GetById(int id)
         {
+            _logger.LogInformation("Buscando produto com ID {id}", id);
+
             var query = new GetProductByIdQuery(id);
             var product = await _mediator.Send(query);
 
-            if(product == null)
+            if (product == null)
+            {
+                _logger.LogWarning("Produto com ID {id} não encontrado", id);
                 return NotFound();
+            }
+
+            _logger.LogInformation("Produto com ID {id} encontrado com sucesso", id);
 
             return Ok(product);
         }
